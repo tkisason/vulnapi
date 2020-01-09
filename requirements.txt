@@ -5,3 +5,4 @@ pyjwt
 passlib
 passlib[bcrypt]
 bcrypt
+pyyaml

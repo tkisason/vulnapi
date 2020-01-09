@@ -4,7 +4,8 @@
     "email": "luke@rebelalliance.com",
     "hashed_password": "$2b$12$eX08vt9QyPA73o6A8x4kNumopV/KWR3qZYfhOKpd6prE2BWF28YUq",
     "plaintext": "tatooine",
-    "disabled": "False"
+    "disabled": "False",
+    "admin": "False"
 },
 {
     "username": "leia",
@@ -12,6 +13,6 @@
     "email": "Leia@rebelalliance.com",
     "hashed_password": "$2b$12$RxKAL3NB7X7Ivz.FuszlmubVpqqd3y4DE7/VJ4CPedi0w65N1dXla",
     "plaintext": "helpusobiwan",
-    "disabled": "False"
-}
-]
+    "disabled": "False",
+    "admin": "False"
+}]

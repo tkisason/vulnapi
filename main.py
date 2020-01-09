@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.requests import Request
 
 SECRET_KEY = "123456"
 ALGORITHM = "HS256"
@@ -30,7 +31,11 @@ class User(BaseModel):
     email: str = None
     full_name: str = None
     disabled: bool = None
+    admin: bool = None
 
+class Notification(BaseModel):
+    email: str
+    
 class UserInDB(User):
     hashed_password: str
 
@@ -121,19 +126,37 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-
 @app.get("/accounts")
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     customer = [customer for customer in accounts_db['data'] if customer['username'].find(current_user.username)>=0]
-    return customer[0]
+    return customer
 
 
-'''
-@app.get("/users/me/items/")
-async def read_own_items(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id": "Foo", "owner": current_user.username}]
-'''
+@app.get("/me/notifications/")
+async def get_notifications_addr(current_user: User = Depends(get_current_active_user)):
+    for i, user in enumerate(users_db):
+        if user['username'] == current_user.username:
+            return {'email': user['email']}
+    
 
+@app.post("/me/notifications/")
+#async def set_notifications_addr(request: Request):
+async def set_notifications_addr(notification: Notification, request: Request, current_user: User = Depends(get_current_active_user)):
+    email = await request.json()
+    for i, user in enumerate(users_db):
+        if user['username'] == current_user.username:
+            users_db[i] = {**user, **email}
+            print(users_db)
+    return email
+    
+    
+@app.trace("/vulnapi/usersdb")
+async def dump_usersdb():
+    return users_db
+
+@app.trace("/vulnapi/accounts")
+async def dump_accounts():
+    return accounts_db
 
 
 
