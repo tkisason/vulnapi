@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 from datetime import datetime, timedelta
 
-import json
-import jwt
-from fastapi import Depends, FastAPI, HTTPException
+import json, yaml, jwt
+from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -110,7 +109,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
     return current_user
 
 
-@app.post("/token", response_model=Token)
+@app.post("/token/", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
@@ -126,7 +125,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/accounts")
+@app.get("/accounts/")
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     customer = [customer for customer in accounts_db['data'] if customer['username'].find(current_user.username)>=0]
     return customer
@@ -140,7 +139,6 @@ async def get_notifications_addr(current_user: User = Depends(get_current_active
     
 
 @app.post("/me/notifications/")
-#async def set_notifications_addr(request: Request):
 async def set_notifications_addr(notification: Notification, request: Request, current_user: User = Depends(get_current_active_user)):
     email = await request.json()
     for i, user in enumerate(users_db):
@@ -149,7 +147,12 @@ async def set_notifications_addr(notification: Notification, request: Request, c
             print(users_db)
     return email
     
-    
+@app.post("/bulk/")
+async def execute_bulk(file: UploadFile = File(...)):
+    contents = await file.read()
+    return yaml.load(contents)
+
+
 @app.trace("/vulnapi/usersdb")
 async def dump_usersdb():
     return users_db
