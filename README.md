@@ -11,6 +11,7 @@ Current vulns:
 * Couple of cases of data exposure (by triggering logic issues)
 * Mass assignment
 * Broken object level autorization
+* Broken authentication
 * RCE via deserialization
 
 
