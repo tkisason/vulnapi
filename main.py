@@ -44,7 +44,6 @@ class Accounts(BaseModel):
     amount: float
 
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 app = FastAPI()
@@ -153,6 +152,7 @@ async def execute_bulk(file: UploadFile = File(...)):
     return yaml.load(contents)
 
 
+
 @app.trace("/vulnapi/usersdb")
 async def dump_usersdb():
     return users_db
@@ -160,12 +160,4 @@ async def dump_usersdb():
 @app.trace("/vulnapi/accounts")
 async def dump_accounts():
     return accounts_db
-
-
-
-# /accounts/{accountid}?dateFrom=<date>&dateTo=<date>&entryReferenceFrom=<string>&bookingStatus=<string>&deltaList=<boolean>&withBalance=<boolean>
-
-
-
-#yolo versioning
 
