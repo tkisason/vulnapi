@@ -137,7 +137,7 @@ async def get_notifications_addr(current_user: User = Depends(get_current_active
     for i, user in enumerate(users_db):
         if user['username'] == current_user.username:
             return {'email': user['email']}
-    
+
 
 @app.post("/me/notifications/")
 async def set_notifications_addr(notification: Notification, request: Request, current_user: User = Depends(get_current_active_user)):
@@ -147,7 +147,8 @@ async def set_notifications_addr(notification: Notification, request: Request, c
             users_db[i] = {**user, **email}
             print(users_db)
     return email
-    
+
+
 @app.post("/bulk/")
 async def execute_bulk(file: UploadFile = File(...)):
     contents = await file.read()
@@ -164,11 +165,11 @@ async def bank_codes(code='1'):
     else:
         return {'bank':results[0],'code':results[1],'swift':results[2]}
     
-@app.trace("/vulnapi/usersdb")
+@app.trace("/vulnapi/inmemory/usersdb")
 async def dump_usersdb():
     return users_db
 
-@app.trace("/vulnapi/accounts")
+@app.trace("/vulnapi/inmemory/accounts")
 async def dump_accounts():
     return accounts_db
 

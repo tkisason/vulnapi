@@ -15,17 +15,12 @@ Current vulns:
 * Broken object level autorization
 * Broken authentication
 * RCE via deserialization
+* SQL injection
 
-
-To-Do:
-* BOLA on a simpler example (OWASP ZAP fuzzer playground)
-* SQL injection (prolly on both examples)
-    - Get prefix?
-
-
-
+ToDo:
+* Rase an issue request if you would like to see something. 
 
 Running:
-
-`uvicorn main:app --reload`
+* install requirements from requirements.txt
+* run: `uvicorn main:app --reload`
 
