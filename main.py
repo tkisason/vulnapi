@@ -2,6 +2,8 @@
 from datetime import datetime, timedelta
 
 import json, yaml, jwt
+import sqlite3
+import logging
 from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
@@ -16,7 +18,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 600
 
 accounts_db = json.loads( open('data/accounts.json').read())
 users_db = json.loads( open('data/users.json').read())
-
+sqldb = sqlite3.connect('data/data.sqlite')
 
 class Token(BaseModel):
     access_token: str
@@ -151,8 +153,17 @@ async def execute_bulk(file: UploadFile = File(...)):
     contents = await file.read()
     return yaml.load(contents)
 
-
-
+@app.get("/bank_codes/")
+async def bank_codes(code='1'):
+    query = sqldb.cursor()
+    parameter = f"select * from bank_codes where code='{code}';"
+    logging.info("QUERY> "+parameter)
+    results = query.execute(parameter).fetchone()
+    if results == None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        return {'bank':results[0],'code':results[1],'swift':results[2]}
+    
 @app.trace("/vulnapi/usersdb")
 async def dump_usersdb():
     return users_db

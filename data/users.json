@@ -10,7 +10,7 @@
 {
     "username": "leia",
     "full_name": "Leia Organa",
-    "email": "Leia@rebelalliance.com",
+    "email": "leia@rebelalliance.com",
     "hashed_password": "$2b$12$RxKAL3NB7X7Ivz.FuszlmubVpqqd3y4DE7/VJ4CPedi0w65N1dXla",
     "plaintext": "helpusobiwan",
     "disabled": "False",
