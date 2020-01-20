@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from datetime import datetime, timedelta
 
-import json, yaml, jwt
+import json, yaml, jwt, time, os, requests
 import sqlite3
 import logging
 from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
@@ -14,18 +14,21 @@ from starlette.requests import Request
 SECRET_KEY = "123456"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 600
+today = time.strftime("%Y-%m-%d")
 
+accounts_db = json.loads(open("data/accounts.json").read())
+users_db = json.loads(open("data/users.json").read())
+sqldb = sqlite3.connect("data/data.sqlite")
 
-accounts_db = json.loads( open('data/accounts.json').read())
-users_db = json.loads( open('data/users.json').read())
-sqldb = sqlite3.connect('data/data.sqlite')
 
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
     username: str = None
+
 
 class User(BaseModel):
     username: str
@@ -34,11 +37,14 @@ class User(BaseModel):
     disabled: bool = None
     admin: bool = None
 
+
 class Notification(BaseModel):
     email: str
-    
+
+
 class UserInDB(User):
     hashed_password: str
+
 
 class Accounts(BaseModel):
     account: str
@@ -61,8 +67,9 @@ def get_password_hash(password):
 
 def get_user(db, username: str):
     for user in db:
-        if username == user['username']:
+        if username == user["username"]:
             return UserInDB(**user)
+
 
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)
@@ -128,22 +135,30 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.get("/accounts/")
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    customer = [customer for customer in accounts_db['data'] if customer['username'].find(current_user.username)>=0]
+    customer = [
+        customer
+        for customer in accounts_db["data"]
+        if customer["username"].find(current_user.username) >= 0
+    ]
     return customer
 
 
 @app.get("/me/notifications/")
 async def get_notifications_addr(current_user: User = Depends(get_current_active_user)):
     for i, user in enumerate(users_db):
-        if user['username'] == current_user.username:
-            return {'email': user['email']}
+        if user["username"] == current_user.username:
+            return {"email": user["email"]}
 
 
 @app.post("/me/notifications/")
-async def set_notifications_addr(notification: Notification, request: Request, current_user: User = Depends(get_current_active_user)):
+async def set_notifications_addr(
+    notification: Notification,
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+):
     email = await request.json()
     for i, user in enumerate(users_db):
-        if user['username'] == current_user.username:
+        if user["username"] == current_user.username:
             users_db[i] = {**user, **email}
             print(users_db)
     return email
@@ -154,22 +169,37 @@ async def execute_bulk(file: UploadFile = File(...)):
     contents = await file.read()
     return yaml.load(contents)
 
+
 @app.get("/bank_codes/")
-async def bank_codes(code='1'):
+async def bank_codes(code="1"):
     query = sqldb.cursor()
     parameter = f"select * from bank_codes where code='{code}';"
-    logging.info("QUERY> "+parameter)
+    logging.info("QUERY> " + parameter)
     results = query.execute(parameter).fetchone()
     if results == None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
-        return {'bank':results[0],'code':results[1],'swift':results[2]}
-    
+        return {"bank": results[0], "code": results[1], "swift": results[2]}
+
+
+@app.get("/exchangerate/")
+async def read_item(datestamp=time.strftime("%Y-%m-%d")):
+    if os.path.exists("./data/" + datestamp):
+        print("./data/" + datestamp)
+        return open("./data/" + datestamp).read()
+    else:
+        data = requests.get("https://www.hnb.hr/tecajn/htecajn.htm").content
+        output = open("./data/" + today, "w")
+        output.write(str(data))
+        output.close()
+        return open("./data/" + datestamp).read()
+
+
 @app.trace("/vulnapi/inmemory/usersdb")
 async def dump_usersdb():
     return users_db
 
+
 @app.trace("/vulnapi/inmemory/accounts")
 async def dump_accounts():
     return accounts_db
-
