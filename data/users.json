@@ -15,4 +15,22 @@
     "plaintext": "helpusobiwan",
     "disabled": "False",
     "admin": "False"
+},
+{
+    "username": "sheev",
+    "full_name": "Sheev Palpatine",
+    "email": "sp@senate.coruscant",
+    "hashed_password": "$2b$12$A3s.ck31ryiogEkWxHjBEeqSY4o2ea1CNmuQjaPiBUGkwFQMwav5u",
+    "plaintext": "darkside",
+    "disabled": "False",
+    "admin": "False"
+},
+{
+    "username": "boba",
+    "full_name": "Boba Fett",
+    "email": "boba@fett.com",
+    "hashed_password": "$2b$12$UbMWy8Z6qRXdMswkrazct.B5cSbYAJwlZviHs0HjhVk4IKy5yBE7C",
+    "plaintext": "hunt",
+    "disabled": "False",
+    "admin": "False"
 }]

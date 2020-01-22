@@ -3,6 +3,8 @@ CREATE TABLE users(username text primary key, full_name text, email text, passwo
 CREATE TABLE bank_codes(bank text, code text, swift text);
 INSERT INTO users(username,full_name,email,password,admin) values ('luke','Luke Skywalker','luke@rebelalliance.com','$2b$12$eX08vt9QyPA73o6A8x4kNumopV/KWR3qZYfhOKpd6prE2BWF28YUq', 'False');
 INSERT INTO users(username,full_name,email,password,admin) values ('leia','Leia Organa','leia@rebelalliance.com','$2b$12$RxKAL3NB7X7Ivz.FuszlmubVpqqd3y4DE7/VJ4CPedi0w65N1dXla', 'False');
+INSERT INTO users(username,full_name,email,password,admin) values ('sheev','Sheev Palpatine','sp@senate.coruscant','$2b$12$A3s.ck31ryiogEkWxHjBEeqSY4o2ea1CNmuQjaPiBUGkwFQMwav5u', 'False');
+INSERT INTO users(username,full_name,email,password,admin) values ('boba','Boba Fett','boba@fett.com','$2b$12$UbMWy8Z6qRXdMswkrazct.B5cSbYAJwlZviHs0HjhVk4IKy5yBE7C', 'False');
 INSERT INTO accounts(account,owner,amount) values ('HR8823600001000000013','luke',3000);
 INSERT INTO accounts(account,owner,amount) values ('HR8823600001000000016', 'anakin', 5000);
 INSERT INTO accounts(account,owner,amount) values ('HR8823600001000000015', 'leia', 15000);
