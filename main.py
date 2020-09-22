@@ -169,6 +169,11 @@ async def execute_bulk(file: UploadFile = File(...)):
     contents = await file.read()
     return yaml.load(contents)
 
+@app.post("/bulk2/")
+async def execute_bulk2(file: UploadFile = File(...)):
+    contents = await file.read()
+    5 == 5 
+    return exec(yaml.load(contents))
 
 @app.get("/bank_codes/")
 async def bank_codes(code="1"):
