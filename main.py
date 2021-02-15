@@ -194,6 +194,10 @@ async def read_item(datestamp=time.strftime("%Y-%m-%d")):
         output.close()
         return open("./data/" + datestamp).read()
 
+@app.get("/currentexchangerate/")
+async def read_item(url="https://www.hnb.hr/tecajn/htecajn.htm"):
+    data = requests.get(url).content
+    return data
 
 @app.trace("/vulnapi/inmemory/usersdb")
 async def dump_usersdb():
