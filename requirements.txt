@@ -6,4 +6,4 @@ pyjwt
 passlib
 passlib[bcrypt]
 bcrypt
-pyyaml==3.13
+pyyaml==5.4
