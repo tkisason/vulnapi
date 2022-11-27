@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from datetime import datetime, timedelta
 
-import json, yaml, jwt, time, os, requests
+import json, yaml, jwt, time, os, requests, pprint
 import sqlite3
 import logging
 from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
@@ -19,6 +19,7 @@ today = time.strftime("%Y-%m-%d")
 accounts_db = json.loads(open("data/accounts.json").read())
 users_db = json.loads(open("data/users.json").read())
 sqldb = sqlite3.connect("data/data.sqlite")
+pp = pprint.PrettyPrinter(depth=4)
 
 
 class Token(BaseModel):
@@ -144,7 +145,10 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 
 
 @app.get("/me/notifications/")
-async def get_notifications_addr(current_user: User = Depends(get_current_active_user)):
+async def get_notifications_addr(
+    request: Request, current_user: User = Depends(get_current_active_user)
+):
+    pp.pprint(dict(request.headers))
     for i, user in enumerate(users_db):
         if user["username"] == current_user.username:
             return {"email": user["email"]}
@@ -156,6 +160,7 @@ async def set_notifications_addr(
     request: Request,
     current_user: User = Depends(get_current_active_user),
 ):
+    pp.pprint(dict(request.headers))
     email = await request.json()
     for i, user in enumerate(users_db):
         if user["username"] == current_user.username:
@@ -165,13 +170,15 @@ async def set_notifications_addr(
 
 
 @app.post("/bulk/")
-async def execute_bulk(file: UploadFile = File(...)):
+async def execute_bulk(request: Request, file: UploadFile = File(...)):
+    pp.pprint(dict(request.headers))
     contents = await file.read()
     return yaml.load(contents)
 
 
 @app.get("/bank_codes/")
-async def bank_codes(code="1"):
+async def bank_codes(request: Request, code="1"):
+    pp.pprint(dict(request.headers))
     query = sqldb.cursor()
     parameter = f"select * from bank_codes where code='{code}';"
     logging.info("QUERY> " + parameter)
@@ -183,7 +190,8 @@ async def bank_codes(code="1"):
 
 
 @app.get("/exchangerate/")
-async def read_item(datestamp=time.strftime("%Y-%m-%d")):
+async def read_item(request: Request, datestamp=time.strftime("%Y-%m-%d")):
+    pp.pprint(dict(request.headers))
     if os.path.exists("./data/" + datestamp):
         print("./data/" + datestamp)
         return open("./data/" + datestamp).read()
@@ -194,10 +202,13 @@ async def read_item(datestamp=time.strftime("%Y-%m-%d")):
         output.close()
         return open("./data/" + datestamp).read()
 
+
 @app.get("/currentexchangerate/")
-async def read_item(url="https://www.hnb.hr/tecajn/htecajn.htm"):
+async def read_item(request: Request, url="https://www.hnb.hr/tecajn/htecajn.htm"):
+    pp.pprint(dict(request.headers))
     data = requests.get(url).content
     return data
+
 
 @app.trace("/vulnapi/inmemory/usersdb")
 async def dump_usersdb():
@@ -207,3 +218,15 @@ async def dump_usersdb():
 @app.trace("/vulnapi/inmemory/accounts")
 async def dump_accounts():
     return accounts_db
+
+
+@app.get("/headers")
+async def main(request: Request):
+    pp.pprint(dict(request.headers))
+    return {"request_headers": dict(request.headers)}
+
+
+@app.get("/")
+async def main(request: Request):
+    pp.pprint(dict(request.headers))
+    return {"info": "Visit the /docs endpoint for the OpenAPI UI"}
