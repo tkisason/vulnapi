@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from datetime import datetime, timedelta
 
-import json, yaml, jwt, time, os, requests, pprint
+import json, yaml, jwt, time, os, requests, pprint, jinja2
 import sqlite3
 import logging
 from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
@@ -155,11 +155,7 @@ async def get_notifications_addr(
 
 
 @app.post("/me/notifications/")
-async def set_notifications_addr(
-    notification: Notification,
-    request: Request,
-    current_user: User = Depends(get_current_active_user),
-):
+async def set_notifications_addr(notification: Notification, request: Request):
     pp.pprint(dict(request.headers))
     email = await request.json()
     for i, user in enumerate(users_db):
@@ -170,14 +166,14 @@ async def set_notifications_addr(
 
 
 @app.post("/bulk/")
-async def execute_bulk(request: Request, file: UploadFile = File(...)):
+async def yaml_bulk_upload(request: Request, file: UploadFile = File(...)):
     pp.pprint(dict(request.headers))
     contents = await file.read()
     return yaml.load(contents)
 
 
 @app.get("/bank_codes/")
-async def bank_codes(request: Request, code="1"):
+async def read_some_bank_codes(request: Request, code="1"):
     pp.pprint(dict(request.headers))
     query = sqldb.cursor()
     parameter = f"select * from bank_codes where code='{code}';"
@@ -190,13 +186,15 @@ async def bank_codes(request: Request, code="1"):
 
 
 @app.get("/exchangerate/")
-async def read_item(request: Request, datestamp=time.strftime("%Y-%m-%d")):
+async def get_current_exchange_rates_from_file_cache(
+    request: Request, datestamp=time.strftime("%Y-%m-%d")
+):
     pp.pprint(dict(request.headers))
     if os.path.exists("./data/" + datestamp):
         print("./data/" + datestamp)
         return open("./data/" + datestamp).read()
     else:
-        data = requests.get("https://www.hnb.hr/tecajn/htecajn.htm").content
+        data = requests.get("https://api.hnb.hr/tecajn-eur/v3").content
         output = open("./data/" + today, "w")
         output.write(str(data))
         output.close()
@@ -204,9 +202,16 @@ async def read_item(request: Request, datestamp=time.strftime("%Y-%m-%d")):
 
 
 @app.get("/currentexchangerate/")
-async def read_item(request: Request, url="https://www.hnb.hr/tecajn/htecajn.htm"):
+async def read_from_hnb_api(request: Request, url="https://api.hnb.hr/tecajn-eur/v3"):
     pp.pprint(dict(request.headers))
     data = requests.get(url).content
+    return data
+
+
+@app.get("/greeter/")
+async def greet_the_user(request: Request, name="world"):
+    pp.pprint(dict(request.headers))
+    data = jinja2.Template("Hello " + name).render()
     return data
 
 
@@ -218,12 +223,6 @@ async def dump_usersdb():
 @app.trace("/vulnapi/inmemory/accounts")
 async def dump_accounts():
     return accounts_db
-
-
-@app.get("/headers")
-async def main(request: Request):
-    pp.pprint(dict(request.headers))
-    return {"request_headers": dict(request.headers)}
 
 
 @app.get("/")
