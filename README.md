@@ -14,6 +14,7 @@ Current implemented vulns:
 * RCE via deserialization
 * SQL injection
 * File inclusion / path traversal
+* Server Side Template Injection
 
 
 Usage:
