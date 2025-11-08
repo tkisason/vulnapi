@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 
 import json, yaml, jwt, time, os, requests, pprint, jinja2
 import sqlite3
+import bcrypt
 import logging
 from fastapi import Depends, FastAPI, HTTPException, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
 from pydantic import BaseModel
 from starlette.status import HTTP_401_UNAUTHORIZED
 from starlette.requests import Request
@@ -53,17 +53,16 @@ class Accounts(BaseModel):
     amount: float
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 app = FastAPI()
 
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.rstrip().encode("utf-8"), hashed_password.rstrip().encode("utf-8"))
 
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode("utf-8"), '$2b$12$YzuU0/cKZmGsUeb4DNMH/u'.encode('utf-8'))
 
 
 def get_user(db, username: str):
