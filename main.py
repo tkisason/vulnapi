@@ -214,12 +214,12 @@ async def greet_the_user(request: Request, name="world"):
     return data
 
 
-@app.trace("/vulnapi/inmemory/usersdb")
+@app.trace("/vulnapi/inmemory/usersdb", include_in_schema=False)
 async def dump_usersdb():
     return users_db
 
 
-@app.trace("/vulnapi/inmemory/accounts")
+@app.trace("/vulnapi/inmemory/accounts", include_in_schema=False)
 async def dump_accounts():
     return accounts_db
 
