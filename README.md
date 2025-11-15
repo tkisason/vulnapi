@@ -16,10 +16,14 @@ Current implemented vulns:
 * File inclusion / path traversal
 * Server Side Template Injection
 
+[For solutions, please see the SOLUTION.md file](SOLUTION.md) 
 
-Usage:
-* docker build --tag vulnapi .
-* docker run -it --rm -p8000:8000 vulnapi
-* open http://IP_OF_HOST:8000/docs in a webbrowser. 
+Usage
+:
+```
+docker build --tag vulnapi .
+docker run -it --rm -p8000:8000 vulnapi
+```
+open `http://IP_OF_HOST:8000/docs` in a webbrowser.
 
-Pull requests, especially for cool, subtle bugs or bad practices are welcome. At least FastAPI makes it easy to implement examples. 
+Pull requests, especially for cool, subtle bugs or bad practices are welcome. At least FastAPI makes it easy to implement examples.
