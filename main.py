@@ -154,7 +154,7 @@ async def get_notifications_addr(
 
 
 @app.post("/me/notifications/")
-async def set_notifications_addr(notification: Notification, request: Request):
+async def set_notifications_addr(notification: Notification, request: Request, current_user: User = Depends(get_current_active_user)):
     pp.pprint(dict(request.headers))
     email = await request.json()
     for i, user in enumerate(users_db):
